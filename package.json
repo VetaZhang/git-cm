@@ -1,0 +1,21 @@
+{
+  "name": "git-cm",
+  "version": "0.0.1",
+  "description": "a tool let you custom git commit message more easily",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "node",
+    "git",
+    "commit"
+  ],
+  "author": "Veta",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "inquirer": "^7.3.3",
+    "shelljs": "^0.8.4"
+  }
+}
