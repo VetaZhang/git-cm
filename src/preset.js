@@ -1,4 +1,4 @@
-const i18n = require('./i18n');
+const { i18n } = require('./i18n');
 
 const presetInput = {
   type: {

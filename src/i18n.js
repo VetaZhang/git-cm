@@ -61,9 +61,18 @@ const i18nConfig = {
     },
     errorMsg: {
       required: '必须填写 {name}！',
-      maxLengthError: '{name} 长度不能超过 {maxLength}！',
+      maxLength: '{name} 长度不能超过 {maxLength}！',
     },
   }
 };
 
-module.exports = i18nConfig[setting.language] || i18nConfig.en;
+const i18n = i18nConfig[setting.language] || i18nConfig.en;
+
+function validateLang(lang) {
+  return Object.keys(i18nConfig).includes(lang);
+}
+
+module.exports = {
+  i18n,
+  validateLang,
+};

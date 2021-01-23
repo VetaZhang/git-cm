@@ -1,11 +1,17 @@
-const inquirer = require("inquirer");
+const inquirer = require('inquirer');
 const config = require('./getConfig');
-const i18n = require('./i18n');
+const { i18n } = require('./i18n');
 
 const typeMap = {
   input: 'input',
   select: 'list',
 };
+
+function replaceByList(originStr, replaceList) {
+  return replaceList.reduce((str, repConfig) => {
+    return str.replace(`{${repConfig.placeholder}}`, repConfig.value);
+  }, originStr);
+}
 
 function generateQuestionsByConfig() {
   return config.inputList.reduce((list, configItem) => {
@@ -20,13 +26,24 @@ function generateQuestionsByConfig() {
         item.validate = function(value, answer) {
           if (configItem.required) {
             if (value.length === 0) {
-              return i18n.errorMsg.required;
+              return replaceByList(
+                i18n.errorMsg.required,
+                [{ placeholder: 'name', value: configItem.key }],
+              );
+              // return i18n.errorMsg.required;
             }
           }
   
           if (configItem.maxLength) {
             if (value.length > configItem.maxLength) {
-              return i18n.errorMsg.maxLength;
+              return replaceByList(
+                i18n.errorMsg.maxLength,
+                [
+                  { placeholder: 'name', value: configItem.key },
+                  { placeholder: 'maxLength', value: configItem.maxLength },
+                ],
+              );
+              // return i18n.errorMsg.maxLength;
             }
           }
           
@@ -53,8 +70,9 @@ function generateQuestionsByConfig() {
   }, []);
 }
 
-const question = generateQuestionsByConfig();
-
-module.exports = inquirer.prompt(question).then(result => {
-  return config.onConfig(result);
-});
+module.exports = function() {
+  const question = generateQuestionsByConfig();
+  return inquirer.prompt(question).then(result => {
+    return config.onConfig(result);
+  });
+}

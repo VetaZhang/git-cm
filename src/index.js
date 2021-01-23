@@ -1,28 +1,29 @@
 #!/usr/bin/env node
 
-
-const chalk = require("chalk");
-const shell = require("shelljs");
-const generateQuestions = require('./generateQuestions');
+const chalk = require('chalk');
+const shell = require('shelljs');
 const config = require('./getConfig');
+const askQuestions = require('./askQuestions');
+const operateSetting = require('./operateSetting');
 
 const dev = false;
 
-function runGitCommit(messageList) {
-  const splitStr = config.insertEmptyLine ? '\n\n' : '\n';
-  const commitMessage = messageList.join(splitStr);
-  // console.log(commitMessage);
-  const command = `git commit -m "${commitMessage}"`;
-  // shell.cd('~/Private/web-lab');
-  const result = shell.exec(command);
-  // console.log('result: ', result);
-}
+const paramList = process.argv.splice(2);
 
-// console.log(generateQuestions);
-generateQuestions.then(res => {
-  if (dev) {
-    console.log(res);
-  } else {
-    runGitCommit(res);
-  }
-});
+switch (paramList[0]) {
+  case 'lang': {
+    operateSetting.changeLang(paramList[1]);
+  }break;
+  default: {
+    askQuestions().then(messageList => {
+      if (dev) {
+        console.log(messageList);
+      } else {
+        const splitStr = config.insertEmptyLine ? '\n\n' : '\n';
+        const commitMessage = messageList.join(splitStr);
+        const command = `git commit -m "${commitMessage}"`;
+        shell.exec(command);
+      }
+    });
+  };
+}
