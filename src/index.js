@@ -6,7 +6,7 @@ const config = require('./getConfig');
 const askQuestions = require('./askQuestions');
 const operateSetting = require('./operateSetting');
 
-const dev = false;
+const dev = true;
 
 const paramList = process.argv.splice(2);
 
@@ -16,11 +16,11 @@ switch (paramList[0]) {
   }break;
   default: {
     askQuestions().then(messageList => {
+      const splitStr = config.insertEmptyLine ? '\n\n' : '\n';
+      const commitMessage = messageList.filter(Boolean).join(splitStr);
       if (dev) {
-        console.log(messageList);
+        console.log(commitMessage);
       } else {
-        const splitStr = config.insertEmptyLine ? '\n\n' : '\n';
-        const commitMessage = messageList.join(splitStr);
         const command = `git commit -m "${commitMessage}"`;
         shell.exec(command);
       }
