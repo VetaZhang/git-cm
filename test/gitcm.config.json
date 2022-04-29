@@ -1,0 +1,18 @@
+{
+  "inputList": [
+    "type",
+    {
+      "name": "scope",
+      "type": "select",
+      "optionList": [
+        "听力",
+        "先心",
+        "遗传"
+      ],
+      "question": "该提交属于哪部分业务内容？",
+      "defaultValue": "",
+      "template": "(<scope>)",
+    },
+    "desc"
+  ]
+}
