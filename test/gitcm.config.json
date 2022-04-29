@@ -11,7 +11,7 @@
       ],
       "question": "该提交属于哪部分业务内容？",
       "defaultValue": "",
-      "template": "(<scope>)",
+      "template": "(<scope>)"
     },
     "desc"
   ]
