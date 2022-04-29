@@ -2,28 +2,38 @@
 
 const chalk = require('chalk');
 const shell = require('shelljs');
-const config = require('./getConfig');
-const askQuestions = require('./askQuestions');
-const operateSetting = require('./operateSetting');
-
-const dev = false;
+const main = require('./main');
+const config = require('./lib/ConfigManager');
+const SettingsManager = require('./lib/SettingsManager');
+const setting = require('./setting.json');
 
 const paramList = process.argv.splice(2);
 
+function throwErr(wrongParam) {
+  console.error(wrongParam);
+}
+
 switch (paramList[0]) {
+  case 'test': {
+    main().then(commitMessage => {
+      console.log(`\n${commitMessage}`);
+    });
+  }break;
   case 'lang': {
-    operateSetting.changeLang(paramList[1]);
+    if (paramList[1]) {
+      switch (paramList[1]) {
+        case 'cn': SettingsManager.switchToCN();break;
+        case 'en': SettingsManager.switchToEN();break;
+        default: throwErr('Target language is not supported');
+      }
+    } else {
+      throwErr('Target language is not supported');
+    }
   }break;
   default: {
-    askQuestions().then(messageList => {
-      if (dev) {
-        console.log(messageList);
-      } else {
-        const splitStr = config.insertEmptyLine ? '\n\n' : '\n';
-        const commitMessage = messageList.join(splitStr);
-        const command = `git commit -m "${commitMessage}"`;
-        shell.exec(command);
-      }
+    main().then(commitMessage => {
+      const command = `git commit -m "${commitMessage}"`;
+      shell.exec(command);
     });
   };
 }

@@ -8,8 +8,8 @@ const i18nConfig = {
       scope: 'Which part will be impacted by the commit?',
       desc: 'Input short description for the commit.',
       detail: 'Input modify detail for the commit.',
-      breaking: 'What the breaking change of the commit?',
-      issue: 'Which issue be closed by the commit?',
+      // breaking: 'What the breaking change of the commit?',
+      // issue: 'Which issue be closed by the commit?',
     },
     optionsLabel: {
       type: {
@@ -39,8 +39,8 @@ const i18nConfig = {
       scope: '该提交修改了项目的哪部分代码？',
       desc: '添加该提交简短的说明',
       detail: '添加详细的描述',
-      breaking: '有哪些破坏性的更改？',
-      issue: '修复问题所关联的 issue？',
+      // breaking: '有哪些破坏性的更改？',
+      // issue: '修复问题所关联的 issue？',
     },
     optionsLabel: {
       type: {
@@ -66,7 +66,7 @@ const i18nConfig = {
   }
 };
 
-const i18n = i18nConfig[setting.language] || i18nConfig.en;
+const i18n = i18nConfig[setting.lang] || i18nConfig.en;
 
 function validateLang(lang) {
   return Object.keys(i18nConfig).includes(lang);

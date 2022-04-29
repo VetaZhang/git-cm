@@ -4,7 +4,7 @@
   "description": "a tool let you custom git commit message more easily",
   "main": "src/index.js",
   "scripts": {
-    "test": "test"
+    "test": "node ./src/index.js"
   },
   "keywords": [
     "node",
