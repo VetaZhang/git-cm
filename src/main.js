@@ -11,7 +11,7 @@ function getQuestionType(type) {
   }[type];
 
   if (!qType) {
-    throw new Error(`Type(${type}) is not supported.`);
+    throw new Error(`Type '${type}' is not supported.`);
   }
 
   return qType;
@@ -65,6 +65,13 @@ function generateQuestions() {
       }break;
       case 'select': {
         item.choices = configItem.optionList.map(item => {
+          if (typeof item === 'string') {
+            return {
+              name: item,
+              value: item,
+              short: `\n> ${item}`,
+            };
+          }
           return {
             name: item.text,
             value: item.value,

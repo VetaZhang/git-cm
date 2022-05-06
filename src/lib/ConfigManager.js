@@ -84,20 +84,36 @@ const presetInput = {
   },
 };
 
-const configFileName = 'gitcm.config.json'
-
-function getParentPath(path) {
-  return path.resolve(path, '..');
+function getParentPath(childPath) {
+  return path.resolve(childPath, '..');
 }
 
-async function isExist(filepath) {
-  const stat = await fs.stat(filepath, () => {});
-  console.log(stat);
+function isExist(filepath) {
+  let stat;
+  try {
+    stat = fs.statSync(filepath, () => {});
+  } catch (error) {
+    //
+  }
+  return !!stat;
 }
 
 class ConfigManager {
   constructor() {
     this.config = {};
+    this.configFileName = 'gitcm.config.json';
+    this.configPath = process.cwd();
+  }
+
+  getSearchConfigPath(path) {
+    return path + '/' + this.configFileName;
+  }
+
+  getDefaultConfigByType(type) {
+    if (!presetInput[type]) {
+      throw Error(`Preset '${type}' is not exist.`);
+    }
+    return presetInput[type];
   }
 
   getDefaultConfig() {
@@ -113,8 +129,26 @@ class ConfigManager {
   }
 
   getCustomConfig() {
-    const cwd = process.cwd();
-    isExist(cwd);
+    let path = this.configPath;
+    while (path !== '/') {
+      const configPath = this.getSearchConfigPath(path);
+      if (isExist(configPath)) {
+        const customConfigBuffer = fs.readFileSync(configPath);
+        const customConfig = JSON.parse(customConfigBuffer.toString());
+        if (!Array.isArray(customConfig.inputList)) {
+          throw Error('config.inputList is not a array.');
+        }
+        customConfig.inputList = customConfig.inputList.map(configItem => {
+          if (typeof configItem === 'string') {
+            return this.getDefaultConfigByType(configItem);
+          }
+          return configItem;
+        });
+        return customConfig;
+      }
+      path = getParentPath(path);
+    }
+    return null;
   }
 
   getConfig() {

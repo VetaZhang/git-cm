@@ -14,7 +14,6 @@
   "author": "Veta",
   "license": "ISC",
   "dependencies": {
-    "chalk": "^4.1.0",
     "inquirer": "^7.3.3",
     "shelljs": "^0.8.4"
   }
