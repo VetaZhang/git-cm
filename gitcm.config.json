@@ -5,9 +5,9 @@
       "name": "scope",
       "type": "select",
       "optionList": [
-        "登录",
-        "首页",
-        "详情"
+        "配置",
+        "交互",
+        "其他"
       ],
       "question": "该提交属于哪部分业务内容？",
       "defaultValue": "",
