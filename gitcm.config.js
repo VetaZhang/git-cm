@@ -95,15 +95,15 @@ const questionList = [
     type: 'select',
     optionList: typeOptionList
   },
-  {
-    name: 'scope',
-    type: 'select',
-    question: {
-      cn: '本次修改涉及哪些业务模块？',
-      en: 'What business modules are involved in this modification?'
-    },
-    optionList: scopeOptionList,
-  },
+  // {
+  //   name: 'scope',
+  //   type: 'select',
+  //   question: {
+  //     cn: '本次修改涉及哪些业务模块？',
+  //     en: 'What business modules are involved in this modification?'
+  //   },
+  //   optionList: scopeOptionList,
+  // },
   {
     name: 'desc',
     type: 'input',
@@ -116,17 +116,17 @@ const questionList = [
       maxLength: 30,
     }
   },
-  {
-    name: 'detail',
-    type: 'input',
-    question: {
-      cn: '本次修改的详细说明',
-      en: 'Detailed description of this modification'
-    },
-    validation: {
-      maxLength: 200,
-    }
-  },
+  // {
+  //   name: 'detail',
+  //   type: 'input',
+  //   question: {
+  //     cn: '本次修改的详细说明',
+  //     en: 'Detailed description of this modification'
+  //   },
+  //   validation: {
+  //     maxLength: 200,
+  //   }
+  // },
 ].map(item => {
   return { ...item, question: item.question[lang] };
 });
@@ -134,6 +134,7 @@ const questionList = [
 module.exports = {
   questionList,
   format({ type, scope, desc, detail }) {
-    return `${type}(${scope}): ${desc}\n${detail}`;
+    // return `${type}(${scope}): ${desc}\n${detail}`;
+    return `${type}: ${desc}`;
   }
 };
