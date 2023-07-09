@@ -1,117 +1,97 @@
-const inquirer = require('inquirer');
-const configManager = require('./lib/ConfigManager');
-const { i18n } = require('./i18n');
+const { input, select } = require('@inquirer/prompts');
+const path = require('path');
+const fs = require('fs');
 
-const config = configManager.getConfig();
+const configFileName = 'gitcm.config.js';
 
-function getQuestionType(type) {
-  const qType = {
-    input: 'input',
-    select: 'list',
-  }[type];
+function readConfig(dir, callback) {
+  const configFilePath = path.resolve(dir, configFileName);
 
-  if (!qType) {
-    throw new Error(`Type '${type}' is not supported.`);
-  }
-
-  return qType;
+  fs.access(configFilePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      // not exist
+      if (dir === '/') {
+        console.error(`Cannot find ${configFileName}`);
+        return;
+      } else {
+        readConfig(path.resolve(dir, '../'), callback);
+      }
+    } else {
+      // exists
+      const config = require(configFilePath);
+      callback(config);
+    }
+  });
 }
 
-function replaceByList(originStr, replaceList) {
-  return replaceList.reduce((str, repConfig) => {
-    return str.replace(`{${repConfig.placeholder}}`, repConfig.value);
-  }, originStr);
+async function getConfig() {
+  return new Promise((resolve, reject) => {
+    readConfig(process.cwd(), resolve);
+  });
 }
 
-function generateQuestions() {
-  return config.inputList.reduce((list, configItem) => {
-    const item = {
-      type: getQuestionType(configItem.type),
-      name: configItem.name,
-      message: configItem.question,
-    };
+async function runForm(config) {
+  let result = {};
+  for (const item of config.questionList) {
+    const { name, type, question, optionList, validation } = item;
+    const message = question || 'No question message';
+    let answer = '';
 
-    const validation = configItem.validation || {};
-
-    switch (configItem.type) {
-      case 'input': {
-        item.validate = function(value, answer) {
-          if (validation.required) {
-            if (value.length === 0) {
-              return replaceByList(
-                i18n.errorMsg.required,
-                [{ placeholder: 'name', value: configItem.name }],
-              );
-            }
-          }
-  
-          if (validation.maxLength) {
-            if (value.length > validation.maxLength) {
-              return replaceByList(
-                i18n.errorMsg.maxLength,
-                [
-                  { placeholder: 'name', value: configItem.name },
-                  { placeholder: 'maxLength', value: validation.maxLength },
-                ],
-              );
-            }
-          }
-          
-          return true;
-        };
-        item.transformer = function(value, answer, option) {
-          return `(${value.length}/${validation.maxLength})\n> ${value}`;
-        };
-      }break;
+    switch (type) {
       case 'select': {
-        item.choices = configItem.optionList.map(item => {
-          if (typeof item === 'string') {
+        answer = await select({
+          message,
+          choices: optionList.map(option => {
+            let text, value, desc;
+
+            if (typeof option === 'string') {
+              text = option;
+              value = option;
+              desc = '';
+            } else {
+              text = option.text;
+              value = option.value;
+              desc = option.desc || '';
+            }
+
             return {
-              name: item,
-              value: item,
-              short: `\n> ${item}`,
+              name: text,
+              value: value,
+              description: desc,
             };
-          }
-          return {
-            name: item.text,
-            value: item.value,
-            short: `\n> ${item.value}`,
+          })
+        });
+      }break;
+      default: {
+        const { minLength = 0, maxLength = 50 } = validation;
+        answer = await input({
+          message,
+          validate(string = '') {
+            if (
+              minLength <= string.length &&
+              string.length <= maxLength
+            ) {
+              return true;
+            } else {
+              return `The length of the ${name} must be between ${minLength} and ${maxLength}`;
+            }
           }
         });
       }break;
-      default: ;
     }
 
-    list.push(item);
-    return list;
-  }, []);
+    result[name] = answer;
+  }
+
+  return result;
 }
 
-module.exports = function() {
-  const question = generateQuestions();
-  return inquirer.prompt(question).then(result => {
-    const list = config.inputList.reduce((list, configItem) => {
-      const validation = configItem.validation || {};
-      let value = result[configItem.name];
-      if (validation.required) {
-        value = value || configItem.defaultValue || '';
-      }
-      if (configItem.template) {
-        value = value ? configItem.template.replace(new RegExp(`<${configItem.name}>`, 'g'), value) : '';
-      }
-      list.push({ name: configItem.name, value });
-      return list;
-    }, []);
+module.exports = {
+  async run() {
+    const config = await getConfig();
+    const result = await runForm(config);
 
-    let msg = '';
-    if (config.template) {
-      msg = config.template;
-      list.forEach(item => {
-        msg = msg.replace(new RegExp(`<${item.name}>`, 'g'), item.value);
-      });
-    } else {
-      msg = list.map(item => item.value).join('\n');
-    }
-    return msg;
-  });
-}
+    return config.format(result);
+  },
+  getConfig
+};
