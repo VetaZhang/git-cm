@@ -1,16 +1,20 @@
 {
   "name": "git-cm",
   "version": "0.0.1",
-  "description": "a tool let you custom git commit message more easily",
+  "description": "A command-line tool for formatting git commit messages.",
   "main": "src/index.js",
   "scripts": {
-    "test": "node ./src/index.js"
+    "test": "node ./src/index.js test"
   },
   "keywords": [
     "node",
     "git",
     "commit"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VetaZhang/git-cm"
+  },
   "author": "Veta",
   "license": "ISC",
   "dependencies": {
